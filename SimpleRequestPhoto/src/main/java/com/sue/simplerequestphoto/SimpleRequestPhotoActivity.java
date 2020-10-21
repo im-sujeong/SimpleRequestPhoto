@@ -161,7 +161,7 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
         }
 
         if (photoFile != null) {
-            Uri photoURI = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", photoFile);
+            Uri photoURI = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".fileprovider", photoFile);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
 
             startActivityForResult(intent, TYPE_TAKE_PHOTO);
