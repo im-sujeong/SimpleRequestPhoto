@@ -1,0 +1,3 @@
+include ':SimpleRequestPhoto'
+include ':app'
+rootProject.name = "SimplePhotoSelect"
