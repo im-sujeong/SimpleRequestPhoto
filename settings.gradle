@@ -1,3 +1,2 @@
-include ':SimpleRequestPhoto'
-include ':app'
+include ':app',':SimpleRequestPhoto'
 rootProject.name = "SimplePhotoSelect"

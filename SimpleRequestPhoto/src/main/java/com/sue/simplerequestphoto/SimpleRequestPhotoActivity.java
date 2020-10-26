@@ -43,10 +43,10 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
     final public static int TYPE_PICK_PHOTO = 2;
 
     final public static String EXTARY_REQUEST_TYPE = "type";
-    final public static String EXTRA_REQUEST_WIDTH = "request_width";
-    final public static String EXTRA_REQUEST_HEIGHT = "request_height";
+    final public static String EXTRA_REQUEST_MAX_SIZE = "request_width";
     final public static String EXTRA_REQUEST_THUMBNAIL_SIZE = "request_thumbnail_size";
     final public static String EXTRA_REQUEST_QUAILITY = "request_quality";
+    final public static String EXTRA_IS_RESIZE_THUMBNAIL = "is_resize_thumbnail";
 
     private static PhotoListener photoListener;
 
@@ -56,12 +56,12 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
     String currentPhotoPath;
     String currentPhotoThumbnailPath;
 
-    float reqWidth = -1;
-    float reqHeight = -1;
-
+    float reqMaxSize = -1;
     float reqThumbnailSize = -1;
 
     int reqQuality = 100;
+
+    boolean isResizeThumbnail;
 
     public static void startActivity(Context context, Intent intent, PhotoListener listener) {
         photoListener = listener;
@@ -80,10 +80,10 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
     private void init() {
         type = getIntent().getIntExtra(EXTARY_REQUEST_TYPE, 0);
 
-        reqWidth = getIntent().getFloatExtra(EXTRA_REQUEST_WIDTH, -1);
-        reqHeight = getIntent().getFloatExtra(EXTRA_REQUEST_HEIGHT, -1);
+        reqMaxSize = getIntent().getFloatExtra(EXTRA_REQUEST_MAX_SIZE, -1);
         reqThumbnailSize = getIntent().getFloatExtra(EXTRA_REQUEST_THUMBNAIL_SIZE, -1);
         reqQuality = getIntent().getIntExtra(EXTRA_REQUEST_QUAILITY, 100);
+        isResizeThumbnail = getIntent().getBooleanExtra(EXTRA_IS_RESIZE_THUMBNAIL, false);
 
         if( type == TYPE_TAKE_PHOTO ) {
             requestPermission(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -223,23 +223,23 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
             int actualHeight = options.outHeight;
             int actualWidth = options.outWidth;
 
-            float imgRatio = (float) actualWidth / (float) actualHeight;
-            float maxRatio = reqWidth / reqHeight;
+            //TODO 해결하자
+            float imgRatio = isResizeThumbnail ? (float) actualHeight / (float) actualWidth : (float) actualWidth / (float) actualHeight;
 
-            if (actualHeight > reqHeight || actualWidth > reqWidth) {
-                options.inSampleSize = calculateInSampleSize(options, (int) reqWidth, (int) reqHeight);
+            if (actualHeight > reqMaxSize || actualWidth > reqMaxSize) {
+                options.inSampleSize = calculateInSampleSize(options, (int) reqMaxSize, (int) reqMaxSize);
 
-                if (imgRatio < maxRatio) {
-                    imgRatio = reqHeight / actualHeight;
+                if (imgRatio < 1) {
+                    imgRatio = reqMaxSize / actualHeight;
                     actualWidth = (int) (imgRatio * actualWidth);
-                    actualHeight = (int) reqHeight;
-                } else if (imgRatio > maxRatio) {
-                    imgRatio = reqWidth / actualWidth;
+                    actualHeight = (int) reqMaxSize;
+                } else if (imgRatio > 1) {
+                    imgRatio = reqMaxSize / actualWidth;
                     actualHeight = (int) (imgRatio * actualHeight);
-                    actualWidth = (int) reqWidth;
+                    actualWidth = (int) reqMaxSize;
                 } else {
-                    actualHeight = (int) reqHeight;
-                    actualWidth = (int) reqWidth;
+                    actualHeight = (int) reqMaxSize;
+                    actualWidth = (int) reqMaxSize;
                 }
 
                 options.inJustDecodeBounds = false;
@@ -279,6 +279,24 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
 
                 scaledBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
 
+                if( isResizeThumbnail && (actualHeight > reqThumbnailSize || actualWidth > reqThumbnailSize) ) {
+                    int x = 0;
+                    int y = 0;
+
+                    int width = scaledBitmap.getWidth();
+                    int height = scaledBitmap.getHeight();
+
+                    if(width > reqMaxSize) {
+                        x = (int) ((width-reqMaxSize)/2);
+                    }
+
+                    if(height > reqMaxSize) {
+                        y = (int) ((height-reqMaxSize)/2);
+                    }
+
+                    scaledBitmap = Bitmap.createBitmap(scaledBitmap, x, y, (int) reqMaxSize, (int) reqMaxSize);
+                }
+
                 if( currentPhotoPath == null ) {
                     createImageFile();
                 }
@@ -298,6 +316,8 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
         }catch (FileNotFoundException e) {
             e.printStackTrace();
         }catch (IOException e){
+            e.printStackTrace();
+        }catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -369,6 +389,8 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
             return true;
         }catch (IOException e) {
             e.printStackTrace();
+        }catch (Exception e) {
+            e.printStackTrace();
         }
 
         return false;
@@ -430,9 +452,15 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
         switch (requestCode) {
             case TYPE_TAKE_PHOTO:
                 if( resultCode == RESULT_OK ) {
-                    if( reqHeight > -1 && reqWidth > -1 ) {
+                    if( reqMaxSize > -1 ) {
                         if( compressedBitmap(currentPhotoPath) ) {
-                            photoListener.onSelectedPhoto(currentPhotoPath, currentPhotoThumbnailPath);
+                            if( isResizeThumbnail ) {
+                                photoListener.onSelectedPhoto(null, currentPhotoPath);
+                            }else {
+                                photoListener.onSelectedPhoto(currentPhotoPath, currentPhotoThumbnailPath);
+                            }
+                        }else {
+                            photoListener.onFailed();
                         }
                     }else {
                         photoListener.onSelectedPhoto(currentPhotoPath, null);
@@ -445,9 +473,15 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
                 if( resultCode == RESULT_OK ) {
                     String path = getImageRealPathFromURI(data.getData());
 
-                    if( reqHeight > -1 && reqWidth > -1 ) {
+                    if( reqMaxSize > -1 ) {
                         if( compressedBitmap(path) ) {
-                            photoListener.onSelectedPhoto(currentPhotoPath, currentPhotoThumbnailPath);
+                            if( isResizeThumbnail ) {
+                                photoListener.onSelectedPhoto(null, currentPhotoPath);
+                            }else {
+                                photoListener.onSelectedPhoto(currentPhotoPath, currentPhotoThumbnailPath);
+                            }
+                        }else {
+                            photoListener.onFailed();
                         }
                     }else {
                         photoListener.onSelectedPhoto(path, null);

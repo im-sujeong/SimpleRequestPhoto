@@ -16,24 +16,24 @@ public class SimpleRequestPhoto {
             request(SimpleRequestPhotoActivity.TYPE_TAKE_PHOTO);
         }
 
-        public void takePhoto(int requestWidth, int requestHeight, int requestQuality) {
-            request(SimpleRequestPhotoActivity.TYPE_TAKE_PHOTO, requestWidth, requestHeight, requestQuality);
+        public void takePhoto(int requestMaxSize, int requestQuality, boolean isResizeThumbnail) {
+            request(SimpleRequestPhotoActivity.TYPE_TAKE_PHOTO, requestMaxSize, requestQuality, isResizeThumbnail);
         }
 
-        public void takePhoto(int requestWidth, int requestHeight, int requestThumbnailSize, int requestQuality) {
-            request(SimpleRequestPhotoActivity.TYPE_TAKE_PHOTO, requestWidth, requestHeight, requestThumbnailSize, requestQuality);
+        public void takePhoto(int requestMaxSize, int requestThumbnailSize, int requestQuality) {
+            request(SimpleRequestPhotoActivity.TYPE_TAKE_PHOTO, requestMaxSize, requestThumbnailSize, requestQuality);
         }
 
         public void pickPhoto() {
             request(SimpleRequestPhotoActivity.TYPE_PICK_PHOTO);
         }
 
-        public void pickPhoto(int requestWidth, int requestHeight, int requestQuality) {
-            request(SimpleRequestPhotoActivity.TYPE_PICK_PHOTO, requestWidth, requestHeight, requestQuality);
+        public void pickPhoto(int requestMaxSize, int requestQuality, boolean isResizeThumbnail) {
+            request(SimpleRequestPhotoActivity.TYPE_PICK_PHOTO, requestMaxSize, requestQuality, isResizeThumbnail);
         }
 
-        public void pickPhoto(int requestWidth, int requestHeight, int requestThumbnailSize, int requestQuality) {
-            request(SimpleRequestPhotoActivity.TYPE_PICK_PHOTO, requestWidth, requestHeight, requestThumbnailSize, requestQuality);
+        public void pickPhoto(int requestMaxSize, int requestThumbnailSize, int requestQuality) {
+            request(SimpleRequestPhotoActivity.TYPE_PICK_PHOTO, requestMaxSize, requestThumbnailSize, requestQuality);
         }
     }
 }
