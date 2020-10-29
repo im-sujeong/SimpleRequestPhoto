@@ -22,7 +22,6 @@
 
         <activity android:name=".SimpleRequestPhotoActivity"
             android:theme="@style/Theme.Transparent"
-            android:screenOrientation="portrait"
             android:configChanges="mcc|mnc|locale|keyboard|keyboardHidden|screenLayout|fontScale|uiMode|orientation|screenSize|layoutDirection"/>
     </application>
 
