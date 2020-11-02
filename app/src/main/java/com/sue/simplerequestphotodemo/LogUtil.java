@@ -4,7 +4,7 @@ import android.util.Log;
 
 public class LogUtil {
 	private static boolean isDebugMode = true;
-	private static String TAG = "simplerequestphoto_";
+	private static String TAG = "SimpleRequestPhoto_";
 
 	public static void e(String tag, String msg){
 		if(isDebugMode)

@@ -223,7 +223,6 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
             int actualHeight = options.outHeight;
             int actualWidth = options.outWidth;
 
-            //TODO 해결하자
             float imgRatio = isResizeThumbnail ? (float) actualHeight / (float) actualWidth : (float) actualWidth / (float) actualHeight;
 
             if (actualHeight > reqMaxSize || actualWidth > reqMaxSize) {
@@ -241,74 +240,72 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
                     actualHeight = (int) reqMaxSize;
                     actualWidth = (int) reqMaxSize;
                 }
-
-                options.inJustDecodeBounds = false;
-                options.inDither = false;
-                options.inPurgeable = true;
-                options.inInputShareable = true;
-                options.inTempStorage = new byte[16 * 1024];
-
-                bmp = BitmapFactory.decodeFile(origImagePath, options);
-                scaledBitmap = Bitmap.createBitmap(actualWidth, actualHeight, Bitmap.Config.ARGB_8888);
-
-                float ratioX = actualWidth / (float) options.outWidth;
-                float ratioY = actualHeight / (float) options.outHeight;
-                float middleX = actualWidth / 2.0f;
-                float middleY = actualHeight / 2.0f;
-
-                Matrix scaleMatrix = new Matrix();
-                scaleMatrix.setScale(ratioX, ratioY, middleX, middleY);
-
-                Canvas canvas = new Canvas(scaledBitmap);
-                canvas.setMatrix(scaleMatrix);
-                canvas.drawBitmap(bmp, middleX - bmp.getWidth() / 2, middleY - bmp.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
-
-                ExifInterface exif = new ExifInterface(origImagePath);
-
-                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
-
-                Matrix matrix = new Matrix();
-
-                if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
-                    matrix.postRotate(90);
-                } else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
-                    matrix.postRotate(180);
-                } else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
-                    matrix.postRotate(270);
-                }
-
-                scaledBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-
-                if( isResizeThumbnail && (actualHeight > reqThumbnailSize || actualWidth > reqThumbnailSize) ) {
-                    int x = 0;
-                    int y = 0;
-
-                    int width = scaledBitmap.getWidth();
-                    int height = scaledBitmap.getHeight();
-
-                    if(width > reqMaxSize) {
-                        x = (int) ((width-reqMaxSize)/2);
-                    }
-
-                    if(height > reqMaxSize) {
-                        y = (int) ((height-reqMaxSize)/2);
-                    }
-
-                    scaledBitmap = Bitmap.createBitmap(scaledBitmap, x, y, (int) reqMaxSize, (int) reqMaxSize);
-                }
-
-                if( currentPhotoPath == null ) {
-                    createImageFile();
-                }
-
-                FileOutputStream out = new FileOutputStream(currentPhotoPath);
-
-                scaledBitmap.compress(Bitmap.CompressFormat.JPEG, reqQuality, out);
-
-                out.close();
-            }else {
-                currentPhotoPath = origImagePath;
             }
+
+            options.inJustDecodeBounds = false;
+            options.inDither = false;
+            options.inPurgeable = true;
+            options.inInputShareable = true;
+            options.inTempStorage = new byte[16 * 1024];
+
+            bmp = BitmapFactory.decodeFile(origImagePath, options);
+            scaledBitmap = Bitmap.createBitmap(actualWidth, actualHeight, Bitmap.Config.ARGB_8888);
+
+            float ratioX = actualWidth / (float) options.outWidth;
+            float ratioY = actualHeight / (float) options.outHeight;
+            float middleX = actualWidth / 2.0f;
+            float middleY = actualHeight / 2.0f;
+
+            Matrix scaleMatrix = new Matrix();
+            scaleMatrix.setScale(ratioX, ratioY, middleX, middleY);
+
+            Canvas canvas = new Canvas(scaledBitmap);
+            canvas.setMatrix(scaleMatrix);
+            canvas.drawBitmap(bmp, middleX - bmp.getWidth() / 2, middleY - bmp.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
+
+            ExifInterface exif = new ExifInterface(origImagePath);
+
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
+
+            Matrix matrix = new Matrix();
+
+            if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+                matrix.postRotate(90);
+            } else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
+                matrix.postRotate(180);
+            } else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+                matrix.postRotate(270);
+            }
+
+            scaledBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+
+            if( isResizeThumbnail && (actualHeight > reqThumbnailSize || actualWidth > reqThumbnailSize) ) {
+                int x = 0;
+                int y = 0;
+
+                int width = scaledBitmap.getWidth();
+                int height = scaledBitmap.getHeight();
+
+                if(width > reqMaxSize) {
+                    x = (int) ((width-reqMaxSize)/2);
+                }
+
+                if(height > reqMaxSize) {
+                    y = (int) ((height-reqMaxSize)/2);
+                }
+
+                scaledBitmap = Bitmap.createBitmap(scaledBitmap, x, y, (int) reqMaxSize, (int) reqMaxSize);
+            }
+
+            if( currentPhotoPath == null ) {
+                createImageFile();
+            }
+
+            FileOutputStream out = new FileOutputStream(currentPhotoPath);
+
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, reqQuality, out);
+
+            out.close();
 
             return reqThumbnailSize > -1 ? compressedBitmapThumbnail(currentPhotoPath) : true;
         }catch (OutOfMemoryError exception) {
