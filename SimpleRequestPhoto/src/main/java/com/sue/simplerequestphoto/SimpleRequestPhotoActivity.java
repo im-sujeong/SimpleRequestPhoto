@@ -296,6 +296,10 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
                     y = (int) ((height-reqMaxSize)/2);
                 }
 
+                if( width < reqMaxSize || height < reqMaxSize ) {
+                    reqMaxSize = height > width ? width : height;
+                }
+
                 scaledBitmap = Bitmap.createBitmap(scaledBitmap, x, y, (int) reqMaxSize, (int) reqMaxSize);
             }
 

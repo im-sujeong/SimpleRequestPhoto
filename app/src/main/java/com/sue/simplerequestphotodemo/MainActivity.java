@@ -59,9 +59,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 @Override
                 public void onFailed(Throwable throwable) {
-
+                    LogUtil.i(TAG, "Throwable " + throwable.getMessage());
                 }
-            }).pickPhoto(960, 250, 90);
+            }).pickPhoto(250, 90, true);
         }
     }
 }
