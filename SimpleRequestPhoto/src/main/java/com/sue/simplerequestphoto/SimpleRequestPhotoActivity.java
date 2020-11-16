@@ -23,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -36,7 +37,7 @@ import java.util.Date;
 import java.util.List;
 
 public class SimpleRequestPhotoActivity extends AppCompatActivity {
-    final String TAG = SimpleRequestPhotoActivity.class.getSimpleName();
+    final String TAG = "SimpleRequestPhoto_";
 
     final public static int TYPE_REQUEST_PERMISSION = 0;
     final public static int TYPE_TAKE_PHOTO = 1;
@@ -158,6 +159,7 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
             photoFile = createImageFile();
         } catch (IOException e) {
             e.printStackTrace();
+            photoListener.onFailed(e);
         }
 
         if (photoFile != null) {
@@ -308,14 +310,18 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
             out.close();
 
             return reqThumbnailSize > -1 ? compressedBitmapThumbnail(currentPhotoPath) : true;
-        }catch (OutOfMemoryError exception) {
-            exception.printStackTrace();
+        }catch (OutOfMemoryError e) {
+            e.printStackTrace();
+            photoListener.onFailed(e);
         }catch (FileNotFoundException e) {
             e.printStackTrace();
+            photoListener.onFailed(e);
         }catch (IOException e){
             e.printStackTrace();
+            photoListener.onFailed(e);
         }catch (Exception e) {
             e.printStackTrace();
+            photoListener.onFailed(e);
         }
 
         return false;
@@ -374,6 +380,10 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
                     y = (int) ((actualHeight-reqThumbnailSize)/2);
                 }
 
+                if( actualHeight < reqThumbnailSize || actualWidth < reqThumbnailSize ) {
+                    reqThumbnailSize = actualHeight > actualWidth ? actualWidth : actualHeight;
+                }
+
                 cropBitmap = Bitmap.createBitmap(bmp, x, y, (int) reqThumbnailSize, (int) reqThumbnailSize);
             }
 
@@ -386,8 +396,10 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
             return true;
         }catch (IOException e) {
             e.printStackTrace();
+            photoListener.onFailed(e);
         }catch (Exception e) {
             e.printStackTrace();
+            photoListener.onFailed(e);
         }
 
         return false;
@@ -456,8 +468,6 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
                             }else {
                                 photoListener.onSelectedPhoto(currentPhotoPath, currentPhotoThumbnailPath);
                             }
-                        }else {
-                            photoListener.onFailed();
                         }
                     }else {
                         photoListener.onSelectedPhoto(currentPhotoPath, null);
@@ -477,8 +487,6 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
                             }else {
                                 photoListener.onSelectedPhoto(currentPhotoPath, currentPhotoThumbnailPath);
                             }
-                        }else {
-                            photoListener.onFailed();
                         }
                     }else {
                         photoListener.onSelectedPhoto(path, null);

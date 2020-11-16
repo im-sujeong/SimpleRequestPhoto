@@ -10,6 +10,7 @@
         android:id="@+id/img_iv"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:scaleType="fitCenter"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/take_photo_btn"/>
 

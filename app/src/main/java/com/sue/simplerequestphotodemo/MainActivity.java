@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.sue.simplerequestphoto.PhotoListener;
 import com.sue.simplerequestphoto.SimpleRequestPhoto;
 
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
 
                 @Override
-                public void onFailed() {
+                public void onFailed(Throwable throwable) {
 
                 }
             }).takePhoto(960, 250, 90);
@@ -50,10 +51,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void onSelectedPhoto(String path, String thumbnailPath) {
                     LogUtil.i(TAG, "path " + path);
                     LogUtil.i(TAG, "thumbnailPath " + thumbnailPath);
+
+                    Glide.with(MainActivity.this)
+                            .load(thumbnailPath)
+                            .into(imgView);
                 }
 
                 @Override
-                public void onFailed() {
+                public void onFailed(Throwable throwable) {
 
                 }
             }).pickPhoto(960, 250, 90);
