@@ -2,6 +2,6 @@ package com.sue.simplerequestphoto;
 
 public interface PhotoListener {
     void onSelectedPhoto(String path, String thumbnailPath);
-
-    void onFailed(Throwable throwable);
+    void onFailed(int failType);
+    void onError(Throwable throwable);
 }

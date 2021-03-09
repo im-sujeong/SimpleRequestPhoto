@@ -8,9 +8,9 @@
 
     <ImageView
         android:id="@+id/img_iv"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:scaleType="fitCenter"
+        android:layout_width="154dp"
+        android:layout_height="120dp"
+        android:scaleType="centerCrop"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/take_photo_btn"/>
 

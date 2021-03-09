@@ -23,7 +23,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -47,7 +46,9 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
     final public static String EXTRA_REQUEST_MAX_SIZE = "request_width";
     final public static String EXTRA_REQUEST_THUMBNAIL_SIZE = "request_thumbnail_size";
     final public static String EXTRA_REQUEST_QUAILITY = "request_quality";
+    final public static String EXTRA_REQUEST_THUMBNAIL_QUAILITY = "request_thumbnail_quality";
     final public static String EXTRA_IS_RESIZE_THUMBNAIL = "is_resize_thumbnail";
+    final public static String EXTRA_LIMIT_SIZE = "limit_lize";
 
     private static PhotoListener photoListener;
 
@@ -61,6 +62,8 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
     float reqThumbnailSize = -1;
 
     int reqQuality = 100;
+    int reqThumbnailQuality = -1;
+    int limitSize = -1;
 
     boolean isResizeThumbnail;
 
@@ -84,7 +87,9 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
         reqMaxSize = getIntent().getFloatExtra(EXTRA_REQUEST_MAX_SIZE, -1);
         reqThumbnailSize = getIntent().getFloatExtra(EXTRA_REQUEST_THUMBNAIL_SIZE, -1);
         reqQuality = getIntent().getIntExtra(EXTRA_REQUEST_QUAILITY, 100);
+        reqThumbnailQuality = getIntent().getIntExtra(EXTRA_REQUEST_THUMBNAIL_QUAILITY, -1);
         isResizeThumbnail = getIntent().getBooleanExtra(EXTRA_IS_RESIZE_THUMBNAIL, false);
+        limitSize = getIntent().getIntExtra(EXTRA_LIMIT_SIZE, -1);
 
         if( type == TYPE_TAKE_PHOTO ) {
             requestPermission(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -159,7 +164,7 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
             photoFile = createImageFile();
         } catch (IOException e) {
             e.printStackTrace();
-            photoListener.onFailed(e);
+            photoListener.onError(e);
         }
 
         if (photoFile != null) {
@@ -228,19 +233,43 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
             float imgRatio = isResizeThumbnail ? (float) actualHeight / (float) actualWidth : (float) actualWidth / (float) actualHeight;
 
             if (actualHeight > reqMaxSize || actualWidth > reqMaxSize) {
-                options.inSampleSize = calculateInSampleSize(options, (int) reqMaxSize, (int) reqMaxSize);
+//               options.inSampleSize = calculateInSampleSize(options, (int) reqMaxSize, (int) reqMaxSize);
 
+                // 가로 세로 중 짧은 쪽에 맞춰 사이즈 변경
                 if (imgRatio < 1) {
-                    imgRatio = reqMaxSize / actualHeight;
-                    actualWidth = (int) (imgRatio * actualWidth);
-                    actualHeight = (int) reqMaxSize;
-                } else if (imgRatio > 1) {
+                    if( actualWidth < reqMaxSize ) {
+                        reqMaxSize = actualWidth;
+                    }
+
                     imgRatio = reqMaxSize / actualWidth;
                     actualHeight = (int) (imgRatio * actualHeight);
                     actualWidth = (int) reqMaxSize;
+                } else if (imgRatio > 1) {
+                    if( actualHeight < reqMaxSize ) {
+                        reqMaxSize = actualHeight;
+                    }
+
+                    imgRatio = reqMaxSize / actualHeight;
+                    actualWidth = (int) (imgRatio * actualWidth);
+                    actualHeight = (int) reqMaxSize;
                 } else {
                     actualHeight = (int) reqMaxSize;
                     actualWidth = (int) reqMaxSize;
+                }
+            }
+
+            if( limitSize > -1 ) {
+                //사이즈 제한이 있을 경우, 가로 세로 중 긴 쪽을 기준으로 판단
+                if( actualHeight > actualWidth ) {
+                    if( actualHeight > limitSize ) {
+                        photoListener.onFailed(SimpleRequestPhoto.HEIGHT_SIZE_EXCESS);
+                        return false;
+                    }
+                }else {
+                    if( actualWidth > limitSize ) {
+                        photoListener.onFailed(SimpleRequestPhoto.WIDTH_SIZE_EXCESS);
+                        return false;
+                    }
                 }
             }
 
@@ -316,16 +345,16 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
             return reqThumbnailSize > -1 ? compressedBitmapThumbnail(currentPhotoPath) : true;
         }catch (OutOfMemoryError e) {
             e.printStackTrace();
-            photoListener.onFailed(e);
+            photoListener.onError(e);
         }catch (FileNotFoundException e) {
             e.printStackTrace();
-            photoListener.onFailed(e);
+            photoListener.onError(e);
         }catch (IOException e){
             e.printStackTrace();
-            photoListener.onFailed(e);
+            photoListener.onError(e);
         }catch (Exception e) {
             e.printStackTrace();
-            photoListener.onFailed(e);
+            photoListener.onError(e);
         }
 
         return false;
@@ -393,17 +422,17 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
 
             FileOutputStream out = new FileOutputStream(currentPhotoThumbnailPath);
 
-            cropBitmap.compress(Bitmap.CompressFormat.JPEG, reqQuality, out);
+            cropBitmap.compress(Bitmap.CompressFormat.JPEG, reqThumbnailQuality < 0 ? reqQuality : reqThumbnailQuality, out);
 
             out.close();
 
             return true;
         }catch (IOException e) {
             e.printStackTrace();
-            photoListener.onFailed(e);
+            photoListener.onError(e);
         }catch (Exception e) {
             e.printStackTrace();
-            photoListener.onFailed(e);
+            photoListener.onError(e);
         }
 
         return false;
