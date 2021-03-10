@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         }
                     })
-                    .setLimitSize(5000)
+                    .setLimitSize(3000)
                     .setRequestMaxSize(960)
                     .setRequestThumbSize(250)
                     .setRequestQuality(90)
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         }
                     })
-                    .setLimitSize(5000)
+                    .setLimitSize(3000)
                     .setRequestMaxSize(720)
                     .setRequestThumbSize(500)
                     .setRequestQuality(90)

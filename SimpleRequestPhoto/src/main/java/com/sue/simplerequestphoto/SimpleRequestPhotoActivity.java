@@ -23,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -258,21 +259,6 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
                 }
             }
 
-            if( limitSize > -1 ) {
-                //사이즈 제한이 있을 경우, 가로 세로 중 긴 쪽을 기준으로 판단
-                if( actualHeight > actualWidth ) {
-                    if( actualHeight > limitSize ) {
-                        photoListener.onFailed(SimpleRequestPhoto.HEIGHT_SIZE_EXCESS);
-                        return false;
-                    }
-                }else {
-                    if( actualWidth > limitSize ) {
-                        photoListener.onFailed(SimpleRequestPhoto.WIDTH_SIZE_EXCESS);
-                        return false;
-                    }
-                }
-            }
-
             options.inJustDecodeBounds = false;
             options.inDither = false;
             options.inPurgeable = true;
@@ -330,6 +316,21 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
                 }
 
                 scaledBitmap = Bitmap.createBitmap(scaledBitmap, x, y, (int) reqMaxSize, (int) reqMaxSize);
+            }
+
+            if( limitSize > -1 ) {
+                //사이즈 제한이 있을 경우, 가로 세로 중 긴 쪽을 기준으로 판단
+                if( scaledBitmap.getHeight() > scaledBitmap.getWidth() ) {
+                    if( scaledBitmap.getHeight() > limitSize ) {
+                        photoListener.onFailed(SimpleRequestPhoto.HEIGHT_SIZE_EXCESS);
+                        return false;
+                    }
+                }else {
+                    if( scaledBitmap.getWidth() > limitSize ) {
+                        photoListener.onFailed(SimpleRequestPhoto.WIDTH_SIZE_EXCESS);
+                        return false;
+                    }
+                }
             }
 
             if( currentPhotoPath == null ) {
