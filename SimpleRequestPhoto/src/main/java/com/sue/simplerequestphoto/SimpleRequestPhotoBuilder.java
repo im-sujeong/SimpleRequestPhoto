@@ -15,6 +15,7 @@ public abstract class SimpleRequestPhotoBuilder<T extends SimpleRequestPhotoBuil
     int requestThumnailQuality = -1;
     int limitSize = -1;
     boolean isResizeThumbnail = false;
+    int resizeType;
 
     public SimpleRequestPhotoBuilder(Context context) {
         this.context = context;
@@ -30,6 +31,7 @@ public abstract class SimpleRequestPhotoBuilder<T extends SimpleRequestPhotoBuil
         intent.putExtra(SimpleRequestPhotoActivity.EXTRA_IS_RESIZE_THUMBNAIL, isResizeThumbnail);
         intent.putExtra(SimpleRequestPhotoActivity.EXTRA_REQUEST_THUMBNAIL_SIZE, requestThumbSize);
         intent.putExtra(SimpleRequestPhotoActivity.EXTRA_LIMIT_SIZE, limitSize);
+        intent.putExtra(SimpleRequestPhotoActivity.EXTRA_RESIZE_TYPE, resizeType);
 
         SimpleRequestPhotoActivity.startActivity(context, intent, listener);
     }
@@ -66,6 +68,11 @@ public abstract class SimpleRequestPhotoBuilder<T extends SimpleRequestPhotoBuil
 
     public T setRequestThumnailQuality(int requestThumnailQuality) {
         this.requestThumnailQuality = requestThumnailQuality;
+        return (T) this;
+    }
+
+    public T setResizeType(int resizeType) {
+        this.resizeType = resizeType;
         return (T) this;
     }
 }

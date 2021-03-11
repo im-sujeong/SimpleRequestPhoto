@@ -58,8 +58,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     .setRequestThumbSize(250)
                     .setRequestQuality(90)
                     .takePhoto();
-
-//                            takePhoto(960, 250, 90);
         }else if( view == pickPhotoBtn ) {
             SimpleRequestPhoto.with(this)
                     .setPhotoListener(new PhotoListener() {
@@ -91,9 +89,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     .setRequestMaxSize(720)
                     .setRequestThumbSize(500)
                     .setRequestQuality(90)
+                    .setResizeType(SimpleRequestPhoto.RESIZE_LONG_SIDE)
                     .pickPhoto();
-
-//            }).pickPhoto(250, 90, true);
         }
     }
 }

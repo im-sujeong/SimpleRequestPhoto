@@ -49,12 +49,15 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
     final public static String EXTRA_REQUEST_QUAILITY = "request_quality";
     final public static String EXTRA_REQUEST_THUMBNAIL_QUAILITY = "request_thumbnail_quality";
     final public static String EXTRA_IS_RESIZE_THUMBNAIL = "is_resize_thumbnail";
-    final public static String EXTRA_LIMIT_SIZE = "limit_lize";
+    final public static String EXTRA_LIMIT_SIZE = "limit_size";
+    final public static String EXTRA_RESIZE_TYPE = "resize_type";
 
     private static PhotoListener photoListener;
 
-    int type;
     boolean isPermissionGranted;
+
+    int type;
+    int resizeType;
 
     String currentPhotoPath;
     String currentPhotoThumbnailPath;
@@ -91,6 +94,7 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
         reqThumbnailQuality = getIntent().getIntExtra(EXTRA_REQUEST_THUMBNAIL_QUAILITY, -1);
         isResizeThumbnail = getIntent().getBooleanExtra(EXTRA_IS_RESIZE_THUMBNAIL, false);
         limitSize = getIntent().getIntExtra(EXTRA_LIMIT_SIZE, -1);
+        resizeType = getIntent().getIntExtra(EXTRA_RESIZE_TYPE, SimpleRequestPhoto.RESIZE_SHORT_SIDE);
 
         if( type == TYPE_TAKE_PHOTO ) {
             requestPermission(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -236,26 +240,49 @@ public class SimpleRequestPhotoActivity extends AppCompatActivity {
             if (actualHeight > reqMaxSize || actualWidth > reqMaxSize) {
 //               options.inSampleSize = calculateInSampleSize(options, (int) reqMaxSize, (int) reqMaxSize);
 
-                // 가로 세로 중 짧은 쪽에 맞춰 사이즈 변경
-                if (imgRatio < 1) {
-                    if( actualWidth < reqMaxSize ) {
-                        reqMaxSize = actualWidth;
-                    }
-
-                    imgRatio = reqMaxSize / actualWidth;
-                    actualHeight = (int) (imgRatio * actualHeight);
-                    actualWidth = (int) reqMaxSize;
-                } else if (imgRatio > 1) {
-                    if( actualHeight < reqMaxSize ) {
-                        reqMaxSize = actualHeight;
-                    }
-
-                    imgRatio = reqMaxSize / actualHeight;
-                    actualWidth = (int) (imgRatio * actualWidth);
-                    actualHeight = (int) reqMaxSize;
-                } else {
+                if( imgRatio == 1 ) {
                     actualHeight = (int) reqMaxSize;
                     actualWidth = (int) reqMaxSize;
+                }else {
+                    if( resizeType == SimpleRequestPhoto.RESIZE_SHORT_SIDE ) {
+                        // 가로 세로 중 짧은 쪽에 맞춰 사이즈 변경
+                        if (imgRatio < 1) {
+                            if( actualWidth < reqMaxSize ) {
+                                reqMaxSize = actualWidth;
+                            }
+
+                            imgRatio = reqMaxSize / actualWidth;
+                            actualHeight = (int) (imgRatio * actualHeight);
+                            actualWidth = (int) reqMaxSize;
+                        } else if (imgRatio > 1) {
+                            if( actualHeight < reqMaxSize ) {
+                                reqMaxSize = actualHeight;
+                            }
+
+                            imgRatio = reqMaxSize / actualHeight;
+                            actualWidth = (int) (imgRatio * actualWidth);
+                            actualHeight = (int) reqMaxSize;
+                        }
+                    }else {
+                        // 가로 세로 중 긴 쪽에 맞춰 사이즈 변경
+                        if (imgRatio < 1) {
+                            if( actualHeight < reqMaxSize ) {
+                                reqMaxSize = actualHeight;
+                            }
+
+                            imgRatio = reqMaxSize / actualHeight;
+                            actualWidth = (int) (imgRatio * actualWidth);
+                            actualHeight = (int) reqMaxSize;
+                        } else if (imgRatio > 1) {
+                            if( actualWidth < reqMaxSize ) {
+                                reqMaxSize = actualWidth;
+                            }
+
+                            imgRatio = reqMaxSize / actualWidth;
+                            actualHeight = (int) (imgRatio * actualHeight);
+                            actualWidth = (int) reqMaxSize;
+                        }
+                    }
                 }
             }
 

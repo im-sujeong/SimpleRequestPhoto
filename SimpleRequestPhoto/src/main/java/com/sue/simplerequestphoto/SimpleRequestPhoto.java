@@ -6,6 +6,9 @@ public class SimpleRequestPhoto {
     final public static int WIDTH_SIZE_EXCESS = 100;
     final public static int HEIGHT_SIZE_EXCESS = 101;
 
+    final public static int RESIZE_SHORT_SIDE = 200;
+    final public static int RESIZE_LONG_SIDE = 201;
+
     public static Builder with(Context context) {
         return new Builder(context);
     }
